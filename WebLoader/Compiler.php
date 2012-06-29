@@ -168,14 +168,24 @@ class Compiler
 	public function generate($ifModified = TRUE)
 	{
 		if ($this->joinFiles) {
-			return array(
+			$before = memory_get_peak_usage();
+			$generated = array(
 				$this->generateFiles($this->collection->getFiles(), $ifModified)
 			);
+			Nette\Diagnostics\Panel::addFile($this->collection->getFiles(),
+				$this->outputDir . '/' . $generated->file,
+				memory_get_peak_usage() - $before);
+			return $generated;
 		} else {
 			$arr = array();
 
 			foreach ($this->collection->getFiles() as $file) {
-				$arr[] = $this->generateFiles(array($file), $ifModified);
+				$before = memory_get_peak_usage();
+				$generated = $this->generateFiles(array($file), $ifModified);
+				Nette\Diagnostics\Panel::addFile($file,
+					$this->outputDir . '/' . $generated->file,
+					memory_get_peak_usage() - $before);
+				$arr[] = $generated;
 			}
 
 			return $arr;

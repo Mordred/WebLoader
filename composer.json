@@ -8,6 +8,10 @@
 		{
 			"name": "Jan Marek",
 			"email": "mail@janmarek.net"
+		},
+		{
+			"name": "Martin Jantošovič",
+			"email": "martin.jantosovic@freya.sk"
 		}
 	],
 	"autoload": {

@@ -96,7 +96,7 @@ abstract class WebLoader extends \Nette\Application\UI\Control
 
 	protected function getGeneratedFilePath($file)
 	{
-		return $this->tempPath . '/' . $file->file . '?' . $file->lastModified;
+		return $this->tempPath . '/' . $file->file;
 	}
 
 }
