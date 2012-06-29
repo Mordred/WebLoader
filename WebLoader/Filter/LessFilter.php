@@ -3,42 +3,38 @@
 namespace WebLoader\Filter;
 
 /**
- * Less CSS filter
+ * Convert LESS to CSS
  *
- * @author Jan Marek
- * @license MIT
+ * Add to composer.json "https://github.com/Mordred/less.php"
+ *
+ * @author Mgr. Martin Jantošovič <martin.jantosovic@freya.sk>
  */
-class LessFilter
-{
-
-	private $lc;
-
-	/**
-	 * @return \lessc
-	 */
-	private function getLessC()
-	{
-		// lazy loading
-		if (empty($this->lc)) {
-			$this->lc = new \lessc();
-		}
-
-		return $this->lc;
-	}
+class LessFilter extends \Nette\Object {
 
 	/**
 	 * Invoke filter
-	 * @param string $code
-	 * @param \WebLoader\Compiler $loader
-	 * @param string $file
+	 * @param string code
+	 * @param WebLoader loader
+	 * @param string file
 	 * @return string
 	 */
-	public function __invoke($code, \WebLoader\Compiler $loader, $file)
+	public function __invoke($code, \WebLoader\Compiler $loader, $file = null)
 	{
-		if (pathinfo($file, PATHINFO_EXTENSION) === 'less') {
-			$this->getLessC()->importDir = pathinfo($file, PATHINFO_DIRNAME) . '/';
-			return $this->getLessC()->parse($code);
+		$info = pathinfo($file);
+		// Iba na LESS subory
+		if (strtolower($info['extension']) != 'less') {
+			return $code;
 		}
+
+		// Create our environment
+		$env = new \Less\Environment;
+		$env->setCompress(false);
+
+		// parse the selected files (or stdin if '-' is given)
+		$parser = new \Less\Parser($env);
+		$parser->parse($code, FALSE, $file);
+
+		$code = $parser->getCss();
 
 		return $code;
 	}
