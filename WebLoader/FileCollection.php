@@ -6,9 +6,19 @@ namespace WebLoader;
  * FileCollection
  *
  * @author Jan Marek
+ * @author Mgr. Martin Jantošovič <martin.jantosovic@freya.sk>
  */
 class FileCollection implements IFileCollection
 {
+	/**
+	 * List of tested suffixes if the file doesn't exist.
+	 * E.g. $suffixes = [ "js", "less" ]
+	 * 	if addFile is called with 'test' and this file doesn't exist,
+	 * 	but the 'test.js' exists, it will be added
+	 *
+	 * @var array
+	 */
+	private $suffixes = array();
 
 	/** @var string */
 	private $root;
@@ -21,10 +31,32 @@ class FileCollection implements IFileCollection
 
 	/**
 	 * @param string|null $root files root for relative paths
+	 * @param string|array $suffixes Searched suffixes
 	 */
-	public function __construct($root = NULL)
+	public function __construct($root = NULL, $suffixes = [])
 	{
 		$this->root = $root;
+		$this->setSuffixes($suffixes);
+	}
+
+	/**
+	 * Set suffixes
+	 * return $this
+	 */
+	public function setSuffixes($values) {
+		if (is_array($values))
+			$this->suffixes = $values;
+		else
+			$this->suffixes = [ $values ];
+		return $this;
+	}
+
+	/**
+	 * Get searched suffixes
+	 * return array
+	 */
+	public function getSuffixes() {
+		return $this->suffixes;
 	}
 
 	/**
@@ -44,15 +76,18 @@ class FileCollection implements IFileCollection
 	 */
 	public function cannonicalizePath($path)
 	{
-
 		$rel = Path::normalize($this->root . "/" . $path);
-		if (file_exists($rel)) {
-			return $rel;
+		if ($rel !== false) return $rel;
+		foreach ($this->suffixes as $suffix) {
+			$rel = Path::normalize($this->root . "/" . $path . '.' . $suffix);
+			if ($rel !== false) return $rel;
 		}
 
 		$abs = Path::normalize($path);
-		if (file_exists($abs)) {
-			return $abs;
+		if ($abs !== false) return $abs;
+		foreach ($this->suffixes as $suffix) {
+			$abs = Path::normalize($path . '.' . $suffix);
+			if ($abs !== false) return $abs;
 		}
 
 		throw new FileNotFoundException("File '$path' does not exist.");
