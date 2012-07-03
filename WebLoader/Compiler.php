@@ -169,13 +169,11 @@ class Compiler
 	{
 		if ($this->joinFiles) {
 			$before = memory_get_peak_usage();
-			$generated = array(
-				$this->generateFiles($this->collection->getFiles(), $ifModified)
-			);
+			$generated = $this->generateFiles($this->collection->getFiles(), $ifModified);
 			Nette\Diagnostics\Panel::addFile($this->collection->getFiles(),
 				$this->outputDir . '/' . $generated->file,
 				memory_get_peak_usage() - $before);
-			return $generated;
+			return [ $generated ];
 		} else {
 			$arr = array();
 
