@@ -77,17 +77,17 @@ class FileCollection implements IFileCollection
 	public function cannonicalizePath($path)
 	{
 		$rel = Path::normalize($this->root . "/" . $path);
-		if ($rel !== false) return $rel;
+		if ($rel !== false && is_file($rel)) return $rel;
 		foreach ($this->suffixes as $suffix) {
 			$rel = Path::normalize($this->root . "/" . $path . '.' . $suffix);
-			if ($rel !== false) return $rel;
+			if ($rel !== false && is_file($rel)) return $rel;
 		}
 
 		$abs = Path::normalize($path);
-		if ($abs !== false) return $abs;
+		if ($abs !== false && is_file($abs)) return $abs;
 		foreach ($this->suffixes as $suffix) {
 			$abs = Path::normalize($path . '.' . $suffix);
-			if ($abs !== false) return $abs;
+			if ($abs !== false && is_file($abs)) return $abs;
 		}
 
 		throw new FileNotFoundException("File '$path' does not exist.");
