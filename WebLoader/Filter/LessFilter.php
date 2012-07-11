@@ -30,6 +30,16 @@ class LessFilter extends \Nette\Object {
 		$env = new \Less\Environment;
 		$env->setCompress(false);
 
+		$dir = dirname($file);
+		$dependencies = [];
+		foreach (\Nette\Utils\Strings::matchAll($code, '/@import "([^"]*)";/') as $match) {
+			$dependedFile = $dir . '/' . $match[1];
+			if (is_file($dependedFile))
+				$dependencies[] = $dependedFile;
+		}
+		if ($dependencies)
+			$loader->setDependedFiles($file, $dependencies);
+
 		// parse the selected files (or stdin if '-' is given)
 		$parser = new \Less\Parser($env);
 		$parser->parse($code, FALSE, $file);

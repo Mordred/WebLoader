@@ -6,9 +6,11 @@ namespace WebLoader;
  * Compiler
  *
  * @author Jan Marek
+ * @author Mgr. Martin Jantošovič <martin.jantosovic@freya.sk>
  */
 class Compiler
 {
+	const DEPENDENCIES_CACHE = '.dependencies';
 
 	/** @var string */
 	private $outputDir;
@@ -30,6 +32,9 @@ class Compiler
 
 	/** @var bool */
 	private $checkLastModified = true;
+
+	/** @var array */
+	private $dependedFiles;
 
 	public function __construct(IFileCollection $files, IOutputNamingConvention $convention, $outputDir)
 	{
@@ -130,6 +135,12 @@ class Compiler
 
 		foreach ($files as $file) {
 			$modified = max($modified, filemtime($file));
+			if ($this->dependedFiles === NULL)
+				$this->getDependedFiles();
+			if (isset($this->dependedFiles[$file])) {
+				foreach ($this->dependedFiles[$file] as $f)
+					$modified = max($modified, filemtime($f));
+			}
 		}
 
 		return $modified;
@@ -296,6 +307,44 @@ class Compiler
 	public function getFileFilters()
 	{
 		return $this->fileFilters;
+	}
+
+	/**
+	 * Get cached dependencies
+	 *
+	 * @return array Key of array is the file and value is array of dependend files
+	 */
+	public function getDependedFiles() {
+		if ($this->dependedFiles === NULL) {
+			if (is_file($this->outputDir . '/' . self::DEPENDENCIES_CACHE))
+				$this->dependedFiles = unserialize(file_get_contents('safe://' . $this->outputDir . '/' . self::DEPENDENCIES_CACHE));
+			else
+				$this->dependedFiles = [];
+		}
+		return $this->dependedFiles;
+	}
+
+	/**
+	 * Clear depended files cache
+	 */
+	public function clearDepended() {
+		ulink($this->outputDir . '/' . self::DEPENDENCIES_CACHE);
+		$this->dependedFiles = NULL;
+	}
+
+	/**
+	 * Store depended files to the cache
+	 */
+	public function setDependedFiles($file, $files) {
+		if ($this->dependedFiles === NULL)
+			$this->getDependedFiles();
+
+		if ($files === NULL)
+			unset($this->dependedFiles[$file]);
+		else
+			$this->dependedFiles[$file] = $files;
+
+		file_put_contents('safe://' . $this->outputDir . '/' . self::DEPENDENCIES_CACHE, serialize($this->dependedFiles));
 	}
 
 }
