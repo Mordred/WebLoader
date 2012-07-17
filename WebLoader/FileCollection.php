@@ -74,7 +74,7 @@ class FileCollection implements IFileCollection
 	 * @throws \WebLoader\FileNotFoundException
 	 * @return string
 	 */
-	public function cannonicalizePath($path)
+	public function cannonicalizePath($path, $need = TRUE)
 	{
 		$rel = Path::normalize($this->root . "/" . $path);
 		if ($rel !== false && is_file($rel)) return $rel;
@@ -90,17 +90,22 @@ class FileCollection implements IFileCollection
 			if ($abs !== false && is_file($abs)) return $abs;
 		}
 
-		throw new FileNotFoundException("File '$path' does not exist.");
+		if ($need)
+			throw new FileNotFoundException("File '$path' does not exist.");
+		else
+			return FALSE;
 	}
-
 
 	/**
 	 * Add file
 	 * @param $file string filename
 	 */
-	public function addFile($file)
+	public function addFile($file, $need = TRUE)
 	{
-		$file = $this->cannonicalizePath((string) $file);
+		$file = $this->cannonicalizePath((string) $file, $need);
+
+		if (!$need && $file === FALSE)
+			return;
 
 		if (in_array($file, $this->files)) {
 			return;
