@@ -76,11 +76,22 @@ class FileCollection implements IFileCollection
 	 */
 	public function cannonicalizePath($path, $need = TRUE)
 	{
-		$rel = Path::normalize($this->root . "/" . $path);
-		if ($rel !== false && is_file($rel)) return $rel;
-		foreach ($this->suffixes as $suffix) {
-			$rel = Path::normalize($this->root . "/" . $path . '.' . $suffix);
+		if (is_array($this->root)) {
+			foreach ($this->root as $root) {
+				$rel = Path::normalize($root . "/" . $path);
+				if ($rel !== false && is_file($rel)) return $rel;
+				foreach ($this->suffixes as $suffix) {
+					$rel = Path::normalize($root . "/" . $path . '.' . $suffix);
+					if ($rel !== false && is_file($rel)) return $rel;
+				}
+			}
+		} else {
+			$rel = Path::normalize($this->root . "/" . $path);
 			if ($rel !== false && is_file($rel)) return $rel;
+			foreach ($this->suffixes as $suffix) {
+				$rel = Path::normalize($this->root . "/" . $path . '.' . $suffix);
+				if ($rel !== false && is_file($rel)) return $rel;
+			}
 		}
 
 		$abs = Path::normalize($path);
@@ -195,6 +206,35 @@ class FileCollection implements IFileCollection
 	public function getRoot()
 	{
 		return $this->root;
+	}
+
+	/**
+	 * Allow change root directory
+	 * @param string $root Root directory
+	 */
+	public function setRoot($root) {
+		$this->root = [];
+		if (is_array($root)) {
+			foreach ($root as $dir) {
+				$this->addRoot($dir);
+			}
+		} else {
+			$this->addRoot($root);
+		}
+	}
+
+	/**
+	 * Add fallback root
+	 * @param string $folder
+	 */
+	public function addRoot($folder) {
+		if (!is_array($this->root))
+			$this->root = [ $this->root ];
+
+		if (is_dir($folder))
+			$this->root[] = $folder;
+		else
+			throw new FileNotFoundException("Directory '$folder' does not exist.");
 	}
 
 }
