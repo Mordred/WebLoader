@@ -11,6 +11,8 @@ namespace WebLoader\Filter;
  */
 class LessFilter extends \Nette\Object {
 
+	const RE_STRING = '\'(?:\\\\.|[^\'\\\\])*\'|"(?:\\\\.|[^"\\\\])*"';
+
 	/**
 	 * Invoke filter
 	 * @param string code
@@ -32,8 +34,8 @@ class LessFilter extends \Nette\Object {
 
 		$dir = dirname($file);
 		$dependencies = [];
-		foreach (\Nette\Utils\Strings::matchAll($code, '/@import "([^"]*)";/') as $match) {
-			$dependedFile = $dir . '/' . $match[1];
+		foreach (\Nette\Utils\Strings::matchAll($code, '/@import ('.self::RE_STRING.');/') as $match) {
+			$dependedFile = $dir . '/' . substr($match[1], 1, strlen($match[1]) - 2);
 			if (is_file($dependedFile))
 				$dependencies[] = $dependedFile;
 		}
