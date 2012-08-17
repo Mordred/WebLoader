@@ -78,26 +78,26 @@ class FileCollection implements IFileCollection
 	{
 		if (is_array($this->root)) {
 			foreach ($this->root as $root) {
-				$rel = realpath($root . "/" . $path);
+				$rel = $this->realpath($root . "/" . $path);
 				if ($rel !== false && is_file($rel)) return $rel;
 				foreach ($this->suffixes as $suffix) {
-					$rel = realpath($root . "/" . $path . '.' . $suffix);
+					$rel = $this->realpath($root . "/" . $path . '.' . $suffix);
 					if ($rel !== false && is_file($rel)) return $rel;
 				}
 			}
 		} else {
-			$rel = realpath($this->root . "/" . $path);
+			$rel = $this->realpath($this->root . "/" . $path);
 			if ($rel !== false && is_file($rel)) return $rel;
 			foreach ($this->suffixes as $suffix) {
-				$rel = realpath($this->root . "/" . $path . '.' . $suffix);
+				$rel = $this->realpath($this->root . "/" . $path . '.' . $suffix);
 				if ($rel !== false && is_file($rel)) return $rel;
 			}
 		}
 
-		$abs = realpath($path);
+		$abs = $this->realpath($path);
 		if ($abs !== false && is_file($abs)) return $abs;
 		foreach ($this->suffixes as $suffix) {
-			$abs = realpath($path . '.' . $suffix);
+			$abs = $this->realpath($path . '.' . $suffix);
 			if ($abs !== false && is_file($abs)) return $abs;
 		}
 
@@ -106,6 +106,30 @@ class FileCollection implements IFileCollection
 		else
 			return FALSE;
 	}
+
+	/**
+	 * Custom realpath implementation, because root directory don't have to exists
+	 * @param string $path
+	 * @return string path
+	 */
+	private function realpath($path)
+	{
+		$path = strtr($path, DIRECTORY_SEPARATOR, '/');
+
+		foreach (explode('/', $path) as $i => $name) {
+			if ($name === '.' || ($name === '' && $i > 0)) continue;
+
+			if ($name === '..') {
+				array_pop($pathArr);
+				continue;
+			}
+
+			$pathArr[] = $name;
+		}
+
+		return realpath(implode('/', $pathArr));
+	}
+
 
 	/**
 	 * Add file
