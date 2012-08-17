@@ -107,6 +107,7 @@ class FileCollection implements IFileCollection
 			return FALSE;
 	}
 
+
 	/**
 	 * Add file
 	 * @param $file string filename
