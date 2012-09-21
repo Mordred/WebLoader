@@ -138,8 +138,11 @@ class Compiler
 			if ($this->dependedFiles === NULL)
 				$this->getDependedFiles();
 			if (isset($this->dependedFiles[$file])) {
-				foreach ($this->dependedFiles[$file] as $f)
-					$modified = max($modified, filemtime($f));
+				foreach ($this->dependedFiles[$file] as $k => $f)
+					if (is_file($f))
+						$modified = max($modified, filemtime($f));
+					else
+						unset($this->dependedFiles[$file][$k]);
 			}
 		}
 
