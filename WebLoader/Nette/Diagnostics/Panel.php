@@ -43,7 +43,7 @@ final class Panel implements \Nette\Diagnostics\IBarPanel {
 
 	public function getTab() {
 		$sum = count(self::$files);
-		return '<span><img src="' . self::$icon . '"><strong>WebLoader</strong> ('.$sum.')</span>';
+		return '<span><img src="' . self::$icon . '">WebLoader ('.$sum.')</span>';
 	}
 
 	public function getPanel() {
