@@ -20,7 +20,7 @@ class CssCharsetFilter extends \Nette\Object {
 	 */
 	public function __invoke($code, \WebLoader\Compiler $loader, $file = null)
 	{
-		$regexp = '/@charset "utf\-8";(\n)?/';
+		$regexp = '/@charset "utf\-8";(\n)?/i';
 		$code = \Nette\Utils\Strings::replace($code, $regexp);
 		$code = self::CHARSET . "\n" . $code;
 
