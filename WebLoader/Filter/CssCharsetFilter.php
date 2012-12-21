@@ -2,6 +2,8 @@
 
 namespace WebLoader\Filter;
 
+use Nette\Utils\Strings;
+
 /**
  * Remove all @charset 'utf8' and write only one at beginning of the file
  *
@@ -21,8 +23,10 @@ class CssCharsetFilter extends \Nette\Object {
 	public function __invoke($code, \WebLoader\Compiler $loader, $file = null)
 	{
 		$regexp = '/@charset "utf\-8";(\n)?/i';
-		$code = \Nette\Utils\Strings::replace($code, $regexp);
-		$code = self::CHARSET . "\n" . $code;
+		$removed = Strings::replace($code, $regexp);
+		// At least one charset was in the code
+		if (Strings::length($removed) < Strings::length($code))
+			$code = self::CHARSET . "\n" . $removed;
 
 		return $code;
 	}
