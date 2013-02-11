@@ -9,7 +9,7 @@ use Nette\Utils\Strings;
  *
  * @author Mgr. Martin Jantošovič <martin.jantosovic@freya.sk>
  */
-class CssCharsetFilter extends \Nette\Object {
+class CssCharsetFilter {
 
 	const CHARSET = '@charset "utf-8";';
 
