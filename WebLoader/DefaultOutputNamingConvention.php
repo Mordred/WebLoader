@@ -98,7 +98,6 @@ class DefaultOutputNamingConvention implements IOutputNamingConvention
 	protected function createHash(array $files, \WebLoader\Compiler $compiler)
 	{
 		$token = implode("|", $files)
-			. serialize($compiler->getFilters())
 			. $compiler->getLastModified($files);
 		return substr(md5($token), 0, 12);
 	}
