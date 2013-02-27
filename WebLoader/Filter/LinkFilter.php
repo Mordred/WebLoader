@@ -13,13 +13,10 @@ use \Nette\Utils\Strings,
 class LinkFilter {
 
 	/** @var string */
-	private $startVariable = '{{link';
+	private $start = '{{link';
 
 	/** @var string */
-	private $endVariable = '}}';
-
-	/** @var array */
-	private $variables;
+	private $end = '}}';
 
 	/** @var Nette\Application\IPresenter */
 	private $presenter;
@@ -27,7 +24,6 @@ class LinkFilter {
 	/**
 	 * Construct
 	 * @param Nette\Application\IPresenter $presenter
-	 * @param array $variables
 	 */
 	public function __construct(\Nette\Application\IPresenter $presenter) {
 		$this->presenter = $presenter;
@@ -37,11 +33,11 @@ class LinkFilter {
 	 * Set delimiter
 	 * @param string $start
 	 * @param string $end
-	 * @return VariablesFilter
+	 * @return LinkFilter
 	 */
 	public function setDelimiter($start, $end) {
-		$this->startVariable = (string)$start;
-		$this->endVariable = (string)$end;
+		$this->start = (string)$start;
+		$this->end = (string)$end;
 		return $this;
 	}
 
@@ -51,8 +47,8 @@ class LinkFilter {
 	 * @return string
 	 */
 	public function __invoke($code) {
-		$start = $this->startVariable;
-		$end = $this->endVariable;
+		$start = $this->start;
+		$end = $this->end;
 		$presenter = $this->presenter;
 
 		$code = Strings::replace($code, '/' . preg_quote($start) . ' *([^ ]+)( .*?)? *' . preg_quote($end) . '/',
@@ -75,6 +71,13 @@ class LinkFilter {
 		);
 
 		return $code;
+	}
+
+	/**
+	 * Presenter is not serializable
+	 */
+	public function __sleep() {
+		return [ 'start', 'end' ];
 	}
 
 }

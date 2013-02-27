@@ -13,6 +13,21 @@ class LessFilter extends \Nette\Object {
 
 	const RE_STRING = '\'(?:\\\\.|[^\'\\\\])*\'|"(?:\\\\.|[^"\\\\])*"';
 
+	private $lc;
+
+	/**
+	 * @return \lessc
+	 */
+	private function getLessC()
+	{
+		// lazy loading
+		if (empty($this->lc)) {
+			$this->lc = new \lessc();
+		}
+
+		return $this->lc;
+	}
+
 	/**
 	 * Invoke filter
 	 * @param string code
@@ -28,10 +43,6 @@ class LessFilter extends \Nette\Object {
 			return $code;
 		}
 
-		// Create our environment
-		$env = new \Less\Environment;
-		$env->setCompress(false);
-
 		$dir = dirname($file);
 		$dependencies = [];
 		foreach (\Nette\Utils\Strings::matchAll($code, '/@import ('.self::RE_STRING.');/') as $match) {
@@ -42,13 +53,10 @@ class LessFilter extends \Nette\Object {
 		if ($dependencies)
 			$loader->setDependedFiles($file, $dependencies);
 
-		// parse the selected files (or stdin if '-' is given)
-		$parser = new \Less\Parser($env);
-		$parser->parse($code, FALSE, $file);
+		$lessc = $this->getLessC();
 
-		$code = $parser->getCss();
-
-		return $code;
+		$lessc->importDir = $info['dirname'];
+		return $lessc->parse($code);
 	}
 
 }
