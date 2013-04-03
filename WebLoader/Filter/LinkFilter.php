@@ -51,7 +51,7 @@ class LinkFilter {
 		$end = $this->end;
 		$presenter = $this->presenter;
 
-		$code = Strings::replace($code, '/' . preg_quote($start) . ' *([^ ]+)( .*?)? *' . preg_quote($end) . '/',
+		$code = Strings::replace($code, '/' . preg_quote($start) . ' *([^ ]+?)( .*?)? *' . preg_quote($end) . '/',
 			function($match) use ($presenter) {
 				$args = [];
 				if (isset($match[2]) && $match[2]) {
