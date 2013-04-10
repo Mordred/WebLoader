@@ -112,7 +112,7 @@ class FileCollection implements IFileCollection
 	 * Add file
 	 * @param $file string filename
 	 */
-	public function addFile($file, $need = TRUE)
+	public function addFile($file, $need = TRUE, $prepend = FALSE)
 	{
 		$file = $this->cannonicalizePath((string) $file, $need);
 
@@ -123,7 +123,10 @@ class FileCollection implements IFileCollection
 			return;
 		}
 
-		$this->files[] = $file;
+		if ($prepend)
+			array_unshift($this->files, $file);
+		else
+			$this->files[] = $file;
 	}
 
 
