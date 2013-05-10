@@ -55,7 +55,7 @@ class LessFilter extends \Nette\Object {
 
 		$lessc = $this->getLessC();
 
-		$lessc->importDir = $info['dirname'];
+		$lessc->importDir = [ $info['dirname'], '' ];
 		return $lessc->parse($code);
 	}
 
