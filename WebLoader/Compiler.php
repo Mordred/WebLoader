@@ -182,12 +182,16 @@ class Compiler
 	public function generate($ifModified = TRUE)
 	{
 		if ($this->joinFiles) {
-			$before = memory_get_peak_usage();
-			$generated = $this->generateFiles($this->collection->getFiles(), $ifModified);
-			Nette\Diagnostics\Panel::addFile($this->collection->getFiles(),
-				$this->outputDir . '/' . $generated->file,
-				memory_get_peak_usage() - $before);
-			return [ $generated ];
+			$arr = [];
+			if ($this->collection->getFiles()) {
+				$before = memory_get_peak_usage();
+				$generated = $this->generateFiles($this->collection->getFiles(), $ifModified);
+				Nette\Diagnostics\Panel::addFile($this->collection->getFiles(),
+					$this->outputDir . '/' . $generated->file,
+					memory_get_peak_usage() - $before);
+				$arr[] = $generated;
+			}
+			return $arr;
 		} else {
 			$arr = array();
 
