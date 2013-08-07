@@ -9,7 +9,7 @@ namespace WebLoader\Filter;
  *
  * @author Mgr. Martin Jantošovič <martin.jantosovic@freya.sk>
  */
-class CoffeeFilter extends \Nette\Object {
+class CoffeeScriptPHPFilter extends \Nette\Object {
 
 	/**
 	 * Invoke filter
