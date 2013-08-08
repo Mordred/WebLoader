@@ -5,7 +5,7 @@ namespace WebLoader\Nette;
 /**
  * @author Jan Marek
  */
-class Extension extends \Nette\Config\CompilerExtension
+class Extension extends \Nette\DI\CompilerExtension
 {
 
 	const EXTENSION_NAME = 'webloader';
@@ -15,6 +15,7 @@ class Extension extends \Nette\Config\CompilerExtension
 		return array(
 			'jsDefaults' => array(
 				'sourceDir' => '%wwwDir%/js',
+				'extensions' => array('js'),
 				'tempDir' => '%wwwDir%/webtemp',
 				'tempPath' => 'webtemp',
 				'files' => array(),
@@ -26,6 +27,7 @@ class Extension extends \Nette\Config\CompilerExtension
 			),
 			'cssDefaults' => array(
 				'sourceDir' => '%wwwDir%/css',
+				'extensions' => array('css'),
 				'tempDir' => '%wwwDir%/webtemp',
 				'tempPath' => 'webtemp',
 				'files' => array(),
@@ -71,7 +73,7 @@ class Extension extends \Nette\Config\CompilerExtension
 
 		$files = $builder->addDefinition($filesServiceName)
 			->setClass('WebLoader\FileCollection')
-			->setArguments(array($config['sourceDir']));
+			->setArguments(array($config['sourceDir'], $config['extensions']));
 
 		foreach ($config['files'] as $file) {
 			// finder support
@@ -119,7 +121,7 @@ class Extension extends \Nette\Config\CompilerExtension
 		// todo css media
 	}
 
-	public function install(\Nette\Config\Configurator $configurator)
+	public function install(\Nette\Configurator $configurator)
 	{
 		$self = $this;
 		$configurator->onCompile[] = function ($configurator, $compiler) use ($self) {
