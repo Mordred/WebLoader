@@ -7,19 +7,23 @@ namespace WebLoader\Filter;
  *
  * @author Mgr. Martin Jantošovič <martin.jantosovic@freya.sk>
  */
-class LessFilter extends \Nette\Object {
+class LessPHPFilter extends \Nette\Object {
 
 	const RE_STRING = '\'(?:\\\\.|[^\'\\\\])*\'|"(?:\\\\.|[^"\\\\])*"';
 
-	/** @var path to lessc bin */
-	private $bin;
+	private $lc;
 
 	/**
-	 * @param string
+	 * @return \lessc
 	 */
-	public function __construct($bin = 'lessc')
+	private function getLessC()
 	{
-		$this->bin = $bin;
+		// lazy loading
+		if (empty($this->lc)) {
+			$this->lc = new \lessc();
+		}
+
+		return $this->lc;
 	}
 
 	/**
@@ -47,19 +51,10 @@ class LessFilter extends \Nette\Object {
 		if ($dependencies)
 			$loader->setDependedFiles($file, $dependencies);
 
-		$code = $this->compileLess($code, $info['dirname']);
-		return $code;
-	}
+		$lessc = $this->getLessC();
 
-	/**
-	 * @param string
-	 * @param bool|NULL
-	 * @return string
-	 */
-	public function compileLess($code, $includePath = NULL) {
-		$cmd = $this->bin . ($includePath ? " --include-path='$includePath'" : '') . ' --no-color -';
-
-		return Process::run($cmd, $code);
+		$lessc->importDir = [ $info['dirname'], '' ];
+		return $lessc->parse($code);
 	}
 
 }

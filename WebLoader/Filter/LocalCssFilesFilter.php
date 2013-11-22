@@ -88,13 +88,7 @@ class LocalCssFilesFilter {
 			url\(                                     ## url(
 				\s*                                   ##   optional whitespace
 				([\'"])?                              ##   optional single/double quote
-				(   (?: (?:\\\\.)+                    ##     escape sequences
-					|   [^\'"\\\\,()\s]+              ##     safe characters
-					|   (?(1)   (?!\1)[\'"\\\\,() \t] ##       allowed special characters
-						|       ^                     ##       (none, if not quoted)
-						)
-					)*                                ##     (greedy match)
-				)
+				(.*?)
 				(?(1)\1)                              ##   optional single/double quote
 				\s*                                   ##   optional whitespace
 			\)                                        ## )
@@ -102,11 +96,10 @@ class LocalCssFilesFilter {
 
 		$self = $this;
 
-		return preg_replace_callback($regexp, function ($matches) use ($self, $file)
-		{
+		return \Nette\Utils\Strings::replace($code, $regexp, function ($matches) use ($self, $file) {
 			$self->copyLocalFile($matches[2], $matches[1], $file);
 			return $matches[0];
-		}, $code);
+		});
 	}
 
 }
